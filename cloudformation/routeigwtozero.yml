@@ -1,0 +1,16 @@
+---
+Parameters:
+  RouteTableId:
+    Type: String
+    Description: Enter the Id of your Route table
+  InternetGWid:
+    Type: String
+    Description: Enter the id of your internet gateway
+
+Ressources:
+  myRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref RouteTableId
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGWid

@@ -1,0 +1,22 @@
+{
+	"Resources": {
+		"Ec2Instance" : {
+			"Type" : "AWS::EC2::Instance",
+			"Properties" : {
+				"AvailabilityZone" : "eu-west-1a",
+				"ImageId" : "ami-01efa4023f0f3a042",
+				"InstanceType" : "t2.medium",
+				"KeyName" : "kp-ccf-ec2",
+				"NetworkInterfaces": [ {
+					"AssociatePublicIpAddress": "true",
+					"DeviceIndex": "0",
+					"GroupSet": ["sg-0146107977b762bb4"],
+					"SubnetId": "subnet-093291e555316acd7"
+				} ],
+				"UserData" : { "Fn::Base64" : { "Fn::Sub":
+				"#!/bin/bash\nsudo yum install git -y \ncurl -sL https://rpm.nodesource.com/setup_14.x | sudo bash -\n  curl -sL https://dl.yarnpkg.com/rpm/yarn.repo -o /etc/yum.repos.d/yarn.repo\n sudo yum install yarn -y\n sudo yum install -y nodejs yarn\ngit clone --branch latest https://github.com/cloud-carbon-footprint/cloud-carbon-footprint.git\ncd /cloud-carbon-footprint\nsudo yarn install"
+        }}
+    }
+  }
+}
+}

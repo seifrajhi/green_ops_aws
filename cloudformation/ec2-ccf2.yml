@@ -1,0 +1,57 @@
+---
+Parameters:
+  InstanceTypeParameter:
+    Type: String
+    Default: t2.medium
+    Description: Enter the instance type of the EC2
+  ImageIdParameter:
+    Type: AWS::EC2::Image::Id
+    Default: ami-01efa4023f0f3a042
+    Description: Image Id
+  SubnetIdParameter:
+    Type: AWS::EC2::Subnet::Id
+    Description: Subnet Id where the EC2 is spawning
+
+Resources:
+  SSMIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+
+  MyInstanceProfile: 
+    Type: "AWS::IAM::InstanceProfile"
+    Properties: 
+      Path: "/"
+      Roles: [!Ref SSMIAMRole]
+
+  Ec2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref ImageIdParameter
+      InstanceType: !Ref InstanceTypeParameter
+      IamInstanceProfile: !Ref MyInstanceProfile
+      NetworkInterfaces:
+      - AssociatePublicIpAddress: 'true'
+        DeviceIndex: '0'
+        SubnetId: !Ref SubnetIdParameter
+      UserData:
+        Fn::Base64: !Sub |
+          #!bin/bash
+          sudo yum update -y
+          sudo yum install git -y 
+          curl -sL https://rpm.nodesource.com/setup_14.x | sudo bash -
+          sudo curl -sL https://dl.yarnpkg.com/rpm/yarn.repo -o /etc/yum.repos.d/yarn.repo
+          sudo yum install yarn -y
+          sudo yum install -y nodejs yarn
+          git clone --branch latest https://github.com/cloud-carbon-footprint/cloud-carbon-footprint.git
+          cd /cloud-carbon-footprint
+          sudo yarn install

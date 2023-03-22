@@ -1,0 +1,69 @@
+---
+Parameters:
+  CurBucketnName:
+    Type: String
+    Description: The name of your Cost and Usage Report S3 Bucket
+  IamUserDestination:
+    Type: String
+    Default: !Ref 'AWS::AccountId'
+    Description: Enter the IAM user ARN that will access the S3 bucket
+  Iam:
+    Type: AWS::EC2::Image::Id
+    Default: ami-01efa4023f0f3a042
+    Description: Image Id
+
+Version: '2008-10-17'
+Id: Policy1335892530063
+Statement:
+- Sid: Stmt1335892150622
+  Effect: Allow
+  Principal:
+    Service: billingreports.amazonaws.com
+  Action:
+  - s3:GetBucketAcl
+  - s3:GetBucketPolicy
+  Resource: !Ref CurBucketName
+- Sid: Stmt1335892526596
+  Effect: Allow
+  Principal:
+    Service: billingreports.amazonaws.com
+  Action: s3:PutObject
+  Resource:  
+    !Join
+      - !Ref CurBucketName
+      - '/*'
+- Sid: AllowBucketList
+  Effect: Allow
+  Principal:
+    AWS: !Ref 'AWS::AccountId'
+  Action: s3:ListBucket
+  Resource: !Ref CurBucketName
+- Sid: AlowUploadDownload
+  Effect: Allow
+  Principal:
+    AWS: !Ref IamUserDestination
+  Action:
+  - s3:GetObject
+  - s3:PutObject
+  Resource: 
+    !Join
+      - !Ref CurBucketName
+      - '/*'
+- Effect: Allow
+  Principal:
+    AWS: !Ref IamUserDestination
+  Action:
+  - s3:GetBucketLocation
+  - s3:GetObject
+  - s3:ListBucket
+  - s3:ListBucketMultipartUploads
+  - s3:ListMultipartUploadParts
+  - s3:AbortMultipartUpload
+  - s3:PutObject
+  - s3:PutBucketNotification
+  - s3:GetBucketNotification
+  Resource:
+  - !Ref CurBucketName
+  - !Join
+      - !Ref CurBucketName
+      - '/*'

@@ -1,0 +1,62 @@
+---
+Parameters:
+  VpcCidr:
+    Type: String
+    Default: 10.0.0.0/16
+    Description: Enter the CIDR of your VPC
+  SubnetCidr:
+    Type: String
+    Default: 10.0.0.0/24
+    Description: Enter the CIDR of your Subnet
+
+Resources:
+  vpcaudittest:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCidr
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+      InstanceTenancy: 'default'
+
+  mySubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: vpcaudittest
+      CidrBlock: !Ref SubnetCidr
+
+  myRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: vpcaudittest
+
+  myInternetGateway:
+    Type: AWS::EC2::InternetGateway
+
+  myvpcgatewayattachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId:
+        Ref: myInternetGateway
+      VpcId:
+        Ref: vpcaudittest
+        
+  myigwassociation:
+    Type: AWS::EC2::GatewayRouteTableAssociation
+    Properties:
+      GatewayId:
+        Ref: myInternetGateway
+      RouteTableId:
+        Ref: myRouteTable
+
+  myRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: myRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: myInternetGateway
+
+
